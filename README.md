@@ -166,16 +166,6 @@ Inventory reports can be exported to `.xlsx` format directly from the UI. Report
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feat/your-feature`
-3. Commit your changes: `git commit -m "feat: add your feature"`
-4. Push to the branch: `git push origin feat/your-feature`
-5. Open a Pull Request
-
----
-
 ## 👩‍💻 Author
 
 **Astha** — [GitHub](https://github.com/astha-1016)
