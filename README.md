@@ -109,7 +109,7 @@ spring.datasource.password=your_password
 ./mvnw spring-boot:run
 ```
 
-Open your browser at **http://localhost:8080**
+Open your browser at **http://localhost:8081**
 
 ---
 
