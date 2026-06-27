@@ -2,7 +2,6 @@
 
 A full-stack web-based Inventory Management System built with **Spring Boot**, **MySQL**, and **Thymeleaf**. It supports product tracking, low-stock email alerts, Excel report exports, user authentication, and Docker-based deployment.
 
-![Build Status](https://github.com/astha-1016/inventory-management-system/actions/workflows/build.yml/badge.svg)
 
 ---
 
