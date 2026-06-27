@@ -78,10 +78,12 @@ public class SecurityConfig {
                                 "/users/delete/**"
                         ).hasRole("MANAGER")
 
-                        // Authenticated users can edit/save their own profile
+                        // ✅ Any authenticated user can edit own profile, change password, update profile
                         .requestMatchers(
                                 "/users/edit/**",
-                                "/users/save"
+                                "/users/save",
+                                "/users/change-password/**",
+                                "/users/update-profile/**"
                         ).authenticated()
 
                         .anyRequest().authenticated()

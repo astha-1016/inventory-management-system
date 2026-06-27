@@ -3,7 +3,6 @@ package com.astha.inventory_management.service;
 import com.astha.inventory_management.entity.Part;
 import com.astha.inventory_management.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -14,8 +13,12 @@ import java.util.List;
 @Slf4j
 public class MailService {
 
-    @Autowired
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
+
+    // ✅ Constructor injection instead of @Autowired
+    public MailService(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     public void sendLowStockAlert(Part part, List<User> managers) {
         log.info("Low stock mail method called for part: {}", part.getPartName());

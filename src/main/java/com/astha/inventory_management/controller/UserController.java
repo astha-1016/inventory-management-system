@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/users")
@@ -24,10 +25,8 @@ public class UserController {
     public String listUsers(
             @RequestParam(required = false) String keyword,
             Model model) {
-
         model.addAttribute("users", userService.searchUsers(keyword));
         model.addAttribute("keyword", keyword);
-
         return "users";
     }
 
@@ -35,7 +34,6 @@ public class UserController {
     @GetMapping("/new")
     public String showUserForm(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         boolean isManager = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_MANAGER"));
 
@@ -49,7 +47,7 @@ public class UserController {
         return "user-form";
     }
 
-    // Save user
+    // Save user (create or update basic info — NOT password)
     @PostMapping("/save")
     public String saveUser(@ModelAttribute User user) {
         userService.saveUser(user);
@@ -60,7 +58,6 @@ public class UserController {
     @GetMapping("/delete/{id}")
     public String deleteUser(@PathVariable Long id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         boolean isManager = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_MANAGER"));
 
@@ -72,7 +69,7 @@ public class UserController {
         return "redirect:/users";
     }
 
-    // Edit user
+    // Edit user — show form
     @GetMapping("/edit/{id}")
     public String showEditUserForm(@PathVariable Long id, Model model) {
         User user = userService.getUserById(id);
@@ -81,14 +78,11 @@ public class UserController {
             return "redirect:/users";
         }
 
-        // Get logged-in user details
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String loggedInUsername = authentication.getName();
-
         boolean isManager = authentication.getAuthorities().stream()
                 .anyMatch(authority -> authority.getAuthority().equals("ROLE_MANAGER"));
 
-        // If not manager, allow edit only for own profile
         if (!isManager && !user.getUsername().equals(loggedInUsername)) {
             return "redirect:/users";
         }
@@ -97,5 +91,86 @@ public class UserController {
         model.addAttribute("roles", Role.values());
         model.addAttribute("pageTitle", "Edit User");
         return "user-form";
+    }
+
+    // ✅ Show change password form
+    @GetMapping("/change-password/{id}")
+    public String showChangePasswordForm(@PathVariable Long id, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInUsername = authentication.getName();
+
+        User user = userService.getUserById(id);
+        if (user == null) return "redirect:/users";
+
+        boolean isManager = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_MANAGER"));
+
+        // Only allow changing own password (managers can change anyone's)
+        if (!isManager && !user.getUsername().equals(loggedInUsername)) {
+            return "redirect:/users";
+        }
+
+        model.addAttribute("userId", id);
+        return "change-password";
+    }
+
+    // ✅ Handle change password form submission
+    @PostMapping("/change-password/{id}")
+    public String changePassword(
+            @PathVariable Long id,
+            @RequestParam String currentPassword,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword,
+            RedirectAttributes redirectAttributes) {
+
+        String result = userService.changePassword(id, currentPassword, newPassword, confirmPassword);
+
+        if ("success".equals(result)) {
+            redirectAttributes.addFlashAttribute("successMessage", "Password changed successfully!");
+            return "redirect:/users";
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", result);
+            return "redirect:/users/change-password/" + id;
+        }
+    }
+
+    // ✅ Show update profile form (email/username)
+    @GetMapping("/update-profile/{id}")
+    public String showUpdateProfileForm(@PathVariable Long id, Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String loggedInUsername = authentication.getName();
+
+        User user = userService.getUserById(id);
+        if (user == null) return "redirect:/users";
+
+        boolean isManager = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_MANAGER"));
+
+        if (!isManager && !user.getUsername().equals(loggedInUsername)) {
+            return "redirect:/users";
+        }
+
+        model.addAttribute("user", user);
+        return "update-profile";
+    }
+
+    // ✅ Handle update profile form submission
+    @PostMapping("/update-profile/{id}")
+    public String updateProfile(
+            @PathVariable Long id,
+            @RequestParam String newUsername,
+            @RequestParam String newEmail,
+            @RequestParam String currentPassword,
+            RedirectAttributes redirectAttributes) {
+
+        String result = userService.updateProfile(id, newUsername, newEmail, currentPassword);
+
+        if ("success".equals(result)) {
+            redirectAttributes.addFlashAttribute("successMessage", "Profile updated successfully!");
+            return "redirect:/users";
+        } else {
+            redirectAttributes.addFlashAttribute("errorMessage", result);
+            return "redirect:/users/update-profile/" + id;
+        }
     }
 }

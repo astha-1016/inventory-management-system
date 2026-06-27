@@ -19,6 +19,11 @@ public class AssetService {
         return assetRepository.findAll();
     }
 
+    // ✅ Efficient count — doesn't load all records into memory
+    public long countAssets() {
+        return assetRepository.count();
+    }
+
     public Asset saveAsset(Asset asset) {
         return assetRepository.save(asset);
     }
@@ -30,12 +35,11 @@ public class AssetService {
     public void deleteAsset(Long id) {
         assetRepository.deleteById(id);
     }
-    public List<Asset> searchAssets(String keyword) {
 
+    public List<Asset> searchAssets(String keyword) {
         if (keyword == null || keyword.trim().isEmpty()) {
             return assetRepository.findAll();
         }
-
         return assetRepository.searchAssets(keyword);
     }
 }

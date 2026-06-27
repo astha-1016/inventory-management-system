@@ -19,6 +19,11 @@ public class MaintenanceService {
         return maintenanceRepository.findAll();
     }
 
+    // ✅ Efficient count
+    public long countMaintenance() {
+        return maintenanceRepository.count();
+    }
+
     public Maintenance saveMaintenance(Maintenance maintenance) {
         return maintenanceRepository.save(maintenance);
     }
@@ -32,11 +37,9 @@ public class MaintenanceService {
     }
 
     public List<Maintenance> searchMaintenance(String keyword) {
-
         if (keyword == null || keyword.trim().isEmpty()) {
             return maintenanceRepository.findAll();
         }
-
         return maintenanceRepository.searchMaintenance(keyword);
     }
 }

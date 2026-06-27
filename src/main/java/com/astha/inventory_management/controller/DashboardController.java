@@ -24,11 +24,16 @@ public class DashboardController {
 
     @GetMapping({"/", "/dashboard"})
     public String dashboard(Model model) {
-        model.addAttribute("totalAssets", assetService.getAllAssets().size());
-        model.addAttribute("totalParts", partService.getAllParts().size());
-        model.addAttribute("lowStockPartsCount", partService.getLowStockParts().size());
-        model.addAttribute("totalMaintenance", maintenanceService.getAllMaintenanceRecords().size());
 
+        // ✅ Use count queries instead of loading all records just to get size
+        model.addAttribute("totalAssets", assetService.countAssets());
+        model.addAttribute("totalParts", partService.countParts());
+        model.addAttribute("totalMaintenance", maintenanceService.countMaintenance());
+
+        // Low stock count still needs the list (to show details too)
+        model.addAttribute("lowStockPartsCount", partService.getLowStockParts().size());
+
+        // These are needed to display the actual lists on dashboard
         model.addAttribute("assets", assetService.getAllAssets());
         model.addAttribute("lowStockParts", partService.getLowStockParts());
         model.addAttribute("maintenanceRecords", maintenanceService.getAllMaintenanceRecords());
